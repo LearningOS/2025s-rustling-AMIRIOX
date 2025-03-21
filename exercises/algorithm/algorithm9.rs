@@ -1,8 +1,7 @@
 /*
-	heap
-	This question requires you to implement a binary heap function
+    heap
+    This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -37,7 +36,22 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.items.push(value);
+        self.count += 1;
+        
+        let mut cur = self.count;
+        while cur > 1 {
+            let par = self.parent_idx(cur);
+            let par_item = &self.items[par];
+
+            let cur_item = &self.items[cur];
+            if (self.comparator)(cur_item, par_item) {
+                self.items.swap(cur, par);
+                cur = par;
+            }else {
+                break;
+            }
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -56,10 +70,11 @@ where
         self.left_child_idx(idx) + 1
     }
 
+    /*
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        0
     }
+    */
 }
 
 impl<T> Heap<T>
@@ -84,8 +99,38 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.is_empty() {
+            return None;
+        }
+
+        let root = self.items.swap_remove(1);
+        self.count -= 1;
+
+        let mut cur = 1;
+        loop {
+            let left_child = self.left_child_idx(cur);
+            let right_child = self.right_child_idx(cur);
+
+            let mut bigger = cur;
+            while left_child < self.items.len()
+                && (self.comparator)(&self.items[left_child], &self.items[bigger])
+            {
+                bigger = left_child;
+            }
+            while right_child < self.items.len()
+                && (self.comparator)(&self.items[right_child], &self.items[bigger])
+            {
+                bigger = right_child;
+            }
+
+            if bigger == cur {
+                break;
+            }
+            self.items.swap(cur, bigger);
+            cur = bigger;
+        }
+
+        Some(root)
     }
 }
 
